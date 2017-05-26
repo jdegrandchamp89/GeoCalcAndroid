@@ -23,7 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_my_settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Spinner distanceSpinner = (Spinner) findViewById(R.id.distanceUnit);
@@ -97,7 +97,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton save = (FloatingActionButton) findViewById(R.id.saveButton);
+        FloatingActionButton save = (FloatingActionButton) findViewById(R.id.savebutton);
         save.setOnClickListener(v -> {
             Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
             intent.putExtra("distanceUnit", distanceString);
@@ -106,7 +106,7 @@ public class SettingsActivity extends AppCompatActivity {
             intent.putExtra("lat2", lat2);
             intent.putExtra("long1", long1);
             intent.putExtra("long2", long2);
-            startActivity(intent);
+            setResult(MainActivity.SETTINGS_RESULT,intent);
             finish();
         });
     }
