@@ -16,6 +16,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.john.geocalc.dummy.HistoryContent;
+
+import org.joda.time.DateTime;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     String long2;
     boolean keyboard;
     public static int SETTINGS_RESULT = 1;
+    public static int HISTORY_RESULT = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
 
                 distanceValue.setText("Distance: " + String.format("%.2f%n", distance) + distanceUnit);
                 bearingValue.setText("Bearing: " + String.format("%.2f%n", bearing) + bearingUnit);
+
+                // remember the calculation.
+                HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(lat1.toString(), long1.toString(), lat2.toString(), long2.toString(), DateTime.now());
+                HistoryContent.addItem(item);
             }
 
             hideKeyboard();
@@ -142,8 +151,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            //this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     @Override
@@ -158,6 +172,48 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == SETTINGS_RESULT) {
             this.bearingUnit = data.getStringExtra("bearingUnits");
             this.distanceUnit = data.getStringExtra("distanceUnits");
+        }
+        else if (resultCode == HISTORY_RESULT) {
+            String[] vals = data.getStringArrayExtra("item");
+            this.lat1 = vals[0];
+            this.long1 = vals[1];
+            this.lat2 = vals[2];
+            this.long2 = vals[3];
+            //this.updateScreen(); // code that updates the calcs.
+            if (lat1.length() != 0 && lat2.length() != 0 && long1.length() != 0 && long2.length() != 0) {
+                Location location1 = new Location("");
+                location1.setLatitude(Double.parseDouble(lat1));
+                location1.setLongitude(Double.parseDouble(long1));
+
+                Location location2 = new Location("");
+                location2.setLatitude(Double.parseDouble(lat2));
+                location2.setLongitude(Double.parseDouble(long2));
+
+                Float distance2 = location1.distanceTo(location2);
+                distance2 *= Float.parseFloat("0.001");
+                if (distanceUnit.contentEquals("Miles")) {
+                    distance2 *= Float.parseFloat("0.621371");
+                }
+
+                Float bearing2 = location1.bearingTo(location2);
+                if (bearingUnit.contentEquals("Mils")) {
+                    bearing2 *= Float.parseFloat("17.777777777778");
+                }
+
+                EditText latitude1 = (EditText) findViewById(R.id.latitude1);
+                EditText latitude2 = (EditText) findViewById(R.id.latitude2);
+                EditText longitude1 = (EditText) findViewById(R.id.longitude1);
+                EditText longitude2 = (EditText) findViewById(R.id.longitude2);
+                latitude1.setText(lat1);
+                latitude2.setText(lat2);
+                longitude1.setText(long1);
+                longitude2.setText(long2);
+
+                TextView distanceValue = (TextView) findViewById(R.id.distanceText);
+                TextView bearingValue = (TextView) findViewById(R.id.bearingText);
+                distanceValue.setText("Distance: " + String.format("%.2f%n", distance2) + distanceUnit);
+                bearingValue.setText("Bearing: " + String.format("%.2f%n", bearing2) + bearingUnit);
+            }
         }
     }
 
@@ -177,6 +233,11 @@ public class MainActivity extends AppCompatActivity {
 
             startActivityForResult(intent, SETTINGS_RESULT);
             //finish();
+            return true;
+        }else if(item.getItemId() == R.id.action_history) {
+            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+            startActivityForResult(intent, HISTORY_RESULT );
+
             return true;
         }
         return false;
