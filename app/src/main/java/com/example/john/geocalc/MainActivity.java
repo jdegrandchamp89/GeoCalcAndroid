@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     boolean keyboard;
     public static int SETTINGS_RESULT = 1;
     public static int HISTORY_RESULT = 2;
+    public static int LOCATION_SEARCH = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         EditText longitude2 = (EditText) findViewById(R.id.longitude2);
         Button calculate = (Button) findViewById(R.id.calculate);
         Button clear = (Button) findViewById(R.id.clear);
+        Button search = (Button) findViewById(R.id.search);
         TextView distanceValue = (TextView) findViewById(R.id.distanceText);
         TextView bearingValue = (TextView) findViewById(R.id.bearingText);
 
@@ -146,6 +148,11 @@ public class MainActivity extends AppCompatActivity {
             bearingValue.setText("Bearing:");
 
             hideKeyboard();
+        });
+
+        search.setOnClickListener(v -> {
+            Intent locationSearch = new Intent(MainActivity.this, LocationSearchActivity.class);
+            startActivityForResult(locationSearch, LOCATION_SEARCH);
         });
 
     }

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "432901833043",
+    "firebase_url": "https://geocalculator-537c9.firebaseio.com",
+    "project_id": "geocalculator-537c9",
+    "storage_bucket": "geocalculator-537c9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432901833043:android:d03b84ac98aecce1",
+        "android_client_info": {
+          "package_name": "com.example.john.geocalc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "432901833043-cg66pvmu4gbo25b5dch0udpd490tlikj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFvcNeKpC8ZOPq3kiNkNhkEidwn693taA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
