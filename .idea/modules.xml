@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GeoCalc.iml" filepath="$PROJECT_DIR$/GeoCalc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GeoCalcAndroidNew.iml" filepath="$PROJECT_DIR$/GeoCalcAndroidNew.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

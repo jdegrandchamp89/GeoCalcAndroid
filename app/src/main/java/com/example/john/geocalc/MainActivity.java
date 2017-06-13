@@ -2,11 +2,9 @@ package com.example.john.geocalc;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.renderscript.Double2;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,9 +14,19 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.john.geocalc.dummy.HistoryContent;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,12 +41,19 @@ public class MainActivity extends AppCompatActivity {
     public static int SETTINGS_RESULT = 1;
     public static int HISTORY_RESULT = 2;
     public static int LOCATION_SEARCH = 3;
+    public static List<LocationLookup> allHistory;
+
+    DatabaseReference topRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FirebaseDatabase dbRef = FirebaseDatabase.getInstance();
+        topRef = dbRef.getReference("history");
+
+        allHistory = new ArrayList<LocationLookup>();
 
         EditText latitude1 = (EditText) findViewById(R.id.latitude1);
         EditText latitude2 = (EditText) findViewById(R.id.latitude2);
@@ -130,8 +145,16 @@ public class MainActivity extends AppCompatActivity {
                 bearingValue.setText("Bearing: " + String.format("%.2f%n", bearing) + bearingUnit);
 
                 // remember the calculation.
-                HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(lat1.toString(), long1.toString(), lat2.toString(), long2.toString(), DateTime.now());
-                HistoryContent.addItem(item);
+//                HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(lat1.toString(), long1.toString(), lat2.toString(), long2.toString(), DateTime.now());
+//                HistoryContent.addItem(item);
+                LocationLookup entry = new LocationLookup();
+                entry.setOrigLat(Double.parseDouble(lat1));
+                entry.setOrigLng(Double.parseDouble(long1));
+                entry.setDestLat(Double.parseDouble(lat2));
+                entry.setDestLng(Double.parseDouble(long2));
+                DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+                entry.setTimestamp(fmt.print(DateTime.now()));
+                topRef.push().setValue(entry);
             }
 
             hideKeyboard();
@@ -221,6 +244,51 @@ public class MainActivity extends AppCompatActivity {
                 distanceValue.setText("Distance: " + String.format("%.2f%n", distance2) + distanceUnit);
                 bearingValue.setText("Bearing: " + String.format("%.2f%n", bearing2) + bearingUnit);
             }
+        }else if(resultCode == LOCATION_SEARCH){
+            if (data != null && data.hasExtra("LOCATIONS")) {
+                Parcelable par = data.getParcelableExtra("LOCATIONS");
+                LocationLookup l = Parcels.unwrap(par);
+                topRef.push().setValue(l);
+                this.lat1 = Double.toString(l.origLat);
+                this.long1 = Double.toString(l.origLng);
+                this.lat2 = Double.toString(l.destLat);
+                this.long2 = Double.toString(l.destLng);
+
+                if (lat1.length() != 0 && lat2.length() != 0 && long1.length() != 0 && long2.length() != 0) {
+                    Location location1 = new Location("");
+                    location1.setLatitude(Double.parseDouble(lat1));
+                    location1.setLongitude(Double.parseDouble(long1));
+
+                    Location location2 = new Location("");
+                    location2.setLatitude(Double.parseDouble(lat2));
+                    location2.setLongitude(Double.parseDouble(long2));
+
+                    Float distance2 = location1.distanceTo(location2);
+                    distance2 *= Float.parseFloat("0.001");
+                    if (distanceUnit.contentEquals("Miles")) {
+                        distance2 *= Float.parseFloat("0.621371");
+                    }
+
+                    Float bearing2 = location1.bearingTo(location2);
+                    if (bearingUnit.contentEquals("Mils")) {
+                        bearing2 *= Float.parseFloat("17.777777777778");
+                    }
+
+                    EditText latitude1 = (EditText) findViewById(R.id.latitude1);
+                    EditText latitude2 = (EditText) findViewById(R.id.latitude2);
+                    EditText longitude1 = (EditText) findViewById(R.id.longitude1);
+                    EditText longitude2 = (EditText) findViewById(R.id.longitude2);
+                    latitude1.setText(lat1);
+                    latitude2.setText(lat2);
+                    longitude1.setText(long1);
+                    longitude2.setText(long2);
+
+                    TextView distanceValue = (TextView) findViewById(R.id.distanceText);
+                    TextView bearingValue = (TextView) findViewById(R.id.bearingText);
+                    distanceValue.setText("Distance: " + String.format("%.2f%n", distance2) + distanceUnit);
+                    bearingValue.setText("Bearing: " + String.format("%.2f%n", bearing2) + bearingUnit);
+                }
+            }
         }
     }
 
@@ -249,5 +317,64 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        allHistory.clear();
+        topRef = FirebaseDatabase.getInstance().getReference("history");
+        topRef.addChildEventListener (chEvListener);
+//topRef.addValueEventListener(valEvListener);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        topRef.removeEventListener(chEvListener);
+    }
+
+    private ChildEventListener chEvListener = new ChildEventListener() {
+
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            LocationLookup entry = (LocationLookup)
+                    dataSnapshot.getValue(LocationLookup.class);
+            entry._key = dataSnapshot.getKey();
+            DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+            entry.setTimestamp(fmt.print(DateTime.now()));
+            allHistory.add(entry);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            LocationLookup entry = (LocationLookup)
+                    dataSnapshot.getValue(LocationLookup.class);
+
+            List<LocationLookup> newHistory = new ArrayList<LocationLookup>();
+
+            for (LocationLookup t : allHistory) {
+                if (!t._key.equals(dataSnapshot.getKey())) {
+                    newHistory.add(t);
+                }
+            }
+
+            allHistory = newHistory;
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
 
 }
