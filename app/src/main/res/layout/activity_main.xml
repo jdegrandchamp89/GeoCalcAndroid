@@ -159,4 +159,72 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="0dp" />
 
+    <ImageView
+        android:id="@+id/p1Icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintLeft_toLeftOf="@+id/bearingText"
+        app:layout_constraintTop_toBottomOf="@+id/bearingText"
+        app:srcCompat="@android:drawable/menuitem_background" />
+
+    <ImageView
+        android:id="@+id/p2Icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toLeftOf="@+id/p1Icon"
+        app:layout_constraintTop_toBottomOf="@+id/p1Icon"
+        app:srcCompat="@android:drawable/menuitem_background" />
+
+    <TextView
+        android:id="@+id/p1Temp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        app:layout_constraintLeft_toRightOf="@+id/p1Icon"
+        app:layout_constraintTop_toTopOf="@+id/p1Icon"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/p1Summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        app:layout_constraintLeft_toLeftOf="@+id/p1Temp"
+        app:layout_constraintTop_toBottomOf="@+id/p1Temp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/p2Temp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="17dp"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        app:layout_constraintLeft_toRightOf="@+id/p2Icon"
+        app:layout_constraintTop_toTopOf="@+id/p2Icon"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/p2Summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        app:layout_constraintLeft_toLeftOf="@+id/p2Temp"
+        app:layout_constraintTop_toBottomOf="@+id/p2Temp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
